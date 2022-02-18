@@ -21,7 +21,7 @@ Ohai.plugin(:Hardware) do
   provides "hardware"
 
   def system_profiler(datatype)
-    sp_cmd = "system_profiler #{datatype} -xml"
+    sp_cmd = "system_profiler #{datatype} -json"
     # Hardware queries
     sp_std = shell_out(sp_cmd)
     Plist.parse_xml(sp_std.stdout)
@@ -40,20 +40,6 @@ Ohai.plugin(:Hardware) do
     hw_hash = system_profiler("SPHardwareDataType")
     hw_hash[0]["_items"][0].delete("_name")
     hardware.merge!(hw_hash[0]["_items"][0])
-
-    # ProductName:	Mac OS X
-    # ProductVersion:	10.15.6
-    # BuildVersion:	19G46c
-    shell_out("sw_vers").stdout.lines.each do |line|
-      case line
-      when /^ProductName:\s*(.*)$/
-        hardware["operating_system"] = Regexp.last_match[1].strip
-      when /^ProductVersion:\s*(.*)$/
-        hardware["operating_system_version"] = Regexp.last_match[1].strip
-      when /^BuildVersion:\s*(.*)$/
-        hardware["build_version"] = Regexp.last_match[1].strip
-      end
-    end
 
     hardware["architecture"] = shell_out("uname -m").stdout.strip
 
