@@ -54,6 +54,7 @@ describe Ohai::System, "Darwin hardware plugin", :unix_only do
     plugin.run
     expect(plugin["hardware"]["boot_rom_version"]).to eq("1715.81.2.0.0 (iBridge: 19.16.10744.0.0,0)")
     expect(plugin["hardware"]["cpu_type"]).to eq("8-Core Intel Core i9")
+	expect(plugin["hardware"]).not_to include("chip_type")
     expect(plugin["hardware"]["current_processor_speed"]).to eq("2,4 GHz")
     expect(plugin["hardware"]["l2_cache_core"]).to eq("256 KB")
     expect(plugin["hardware"]["l3_cache"]).to eq("16 MB")
