@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #
 # Author:: Nate Walck (<nate.walck@gmail.com>)
 # Copyright:: Copyright (c) 2016-present Facebook, Inc.
@@ -18,7 +19,7 @@
 #
 
 Ohai.plugin(:Hardware) do
-  provides "hardware"
+  provides 'hardware'
 
   def system_profiler(datatype)
     sp_cmd = "system_profiler #{datatype} -json"
@@ -28,28 +29,20 @@ Ohai.plugin(:Hardware) do
   end
 
   collect_data(:darwin) do
-    unless hardware
-      hardware Mash.new
-    else
-      logger.trace("Plugin Hardware: namespace already exists")
+    if hardware
+      logger.trace('Plugin Hardware: namespace already exists')
       next
+    else
+      hardware Mash.new
     end
 
-    require "json"
+    require 'json'
 
-    # Initialize the hardware hash
-    hw_hash = system_profiler("SPHardwareDataType")
-    
-    # Remove unecessary identifier keys
-	hw_hash[0].delete("_name")
-
-    # Normalize the discrepancy between "chip_type" and "cpu_type"
-	hw_hash[0]["cpu_type"] = hw_hash[0].delete("chip_type") if hw_hash[0].key?("chip_type")
-    
-	# Add the hardware hash to the hardware namespace (sorted alphabetically)
+    hw_hash = system_profiler('SPHardwareDataType')
+	hw_hash[0].delete('_name')
+    # Normalize discrepancy between "chip_type" and "cpu_type"
+	hw_hash[0]['cpu_type'] = hw_hash[0].delete('chip_type') if hw_hash[0].key?('chip_type')
 	hardware.merge!(hw_hash[0].sort_by { |k, _v| k }.to_h)
-
-	# Initialize the memory hash
-    hardware["architecture"] = shell_out("uname -m").stdout.strip
+	hardware['architecture'] = shell_out('uname -m').stdout.strip
   end
 end
